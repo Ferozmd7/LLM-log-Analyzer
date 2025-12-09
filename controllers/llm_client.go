@@ -1,45 +1,39 @@
 package controllers
 
-import (
-    "context"
-    "encoding/json"
-    "fmt"
-    "os"
-    openai "github.com/openai/openai-go"
-)
+import "fmt"
 
-type LLMAnalysis struct {
-    Summary         string   `json:"summary"`
-    Anomalies       []string `json:"anomalies"`
-    Recommendations []string `json:"recommendations"`
+// LLMClient defines a common interface for any LLM
+type LLMClient interface {
+	Generate(prompt string) (string, error)
 }
 
-type LLMClient struct {
-    OpenAI *openai.Client
+// -------------------
+// OpenAI Implementation
+// -------------------
+type OpenAIClient struct {
+	APIKey string
 }
 
-func NewLLMClient() *LLMClient {
-    return &LLMClient{
-        OpenAI: openai.NewClient(os.Getenv("OPENAI_API_KEY")),
-    }
+func NewOpenAIClient(apiKey string) *OpenAIClient {
+	return &OpenAIClient{APIKey: apiKey}
 }
 
-func (c *LLMClient) AnalyzeLogs(ctx context.Context, model string, logs string) (*LLMAnalysis, error) {
-    resp, err := c.OpenAI.Chat.Completions.Create(ctx, openai.ChatCompletionRequest{
-        Model: model,
-        Messages: []openai.ChatCompletionMessage{
-            {Role: "system", Content: "Return JSON: {summary, anomalies[], recommendations[]}"},
-            {Role: "user", Content: logs},
-        },
-    })
-    if err != nil {
-        return nil, err
-    }
-
-    var out LLMAnalysis
-    if err := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &out); err != nil {
-        return nil, fmt.Errorf("invalid JSON: %w", err)
-    }
-
-    return &out, nil
+func (c *OpenAIClient) Generate(prompt string) (string, error) {
+	// Placeholder: implement API call to OpenAI or return mock text
+	return fmt.Sprintf("[OpenAI] Response for prompt: %s", prompt), nil
 }
+
+// -------------------
+// Local LLM Implementation
+// -------------------
+type LocalLLMClient struct {}
+
+func NewLocalLLMClient() *LocalLLMClient {
+	return &LocalLLMClient{}
+}
+
+func (c *LocalLLMClient) Generate(prompt string) (string, error) {
+	// Placeholder: call local LLM binary or model
+	return fmt.Sprintf("[Local LLM] Response for prompt: %s", prompt), nil
+}
+

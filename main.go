@@ -1,38 +1,33 @@
 package main
 
 import (
-    "os"
-    "github.com/example/llm-log-operator/controllers"
-    "github.com/example/llm-log-operator/api/v1alpha1"
-    ctrl "sigs.k8s.io/controller-runtime"
+	"log"
+	"os"
+
+	"github.com/example/llm-log-operator/controllers"
+	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 func main() {
-    mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-        Scheme: controllers.Scheme,
-    })
-    if err != nil {
-        panic(err)
-    }
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{})
+	if err != nil { log.Fatal(err) }
 
-    llm := controllers.NewLLMClient()
+	var llmClient controllers.LLMClient
+	if os.Getenv("USE_LOCAL_LLM") == "1" {
+		llmClient = controllers.NewLocalLLMClient()
+	} else {
+		apiKey := os.Getenv("OPENAI_API_KEY")
+		llmClient = controllers.NewOpenAIClient(apiKey)
+	}
 
-    if err := (&controllers.AILogSummaryConfigReconciler{
-        Client: mgr.GetClient(),
-        Scheme: mgr.GetScheme(),
-        LLM:    llm,
-    }).SetupWithManager(mgr); err != nil {
-        panic(err)
-    }
+	reconciler := &controllers.AILogSummaryConfigReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+		LLM:    llmClient,
+	}
 
-    if err := (&controllers.AIInsightReconciler{
-        Client: mgr.GetClient(),
-        Scheme: mgr.GetScheme(),
-    }).SetupWithManager(mgr); err != nil {
-        panic(err)
-    }
+	if err := reconciler.SetupWithManager(mgr); err != nil { log.Fatal(err) }
 
-    if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-        panic(err)
-    }
+	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil { log.Fatal(err) }
 }
+
