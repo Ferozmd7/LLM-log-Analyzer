@@ -1,0 +1,11 @@
+apiVersion: ai.example.com/v1alpha1
+kind: AILogSummaryConfig
+metadata:
+  name: analyze-payments
+spec:
+  podSelector:
+    app: payment
+  intervalSeconds: 20
+  maxLogBytes: 40000
+  llmModel: "gpt-4.1"
+  generateInsightsCR: true
