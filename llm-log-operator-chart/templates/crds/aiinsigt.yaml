@@ -1,0 +1,10 @@
+apiVersion: llm.analyzer.com/v1alpha1
+kind: AIInsight
+metadata:
+  name: example-aiinsight
+spec:
+  podName: ""
+  summary: ""
+  anomalies: []
+  recommendations: []
+

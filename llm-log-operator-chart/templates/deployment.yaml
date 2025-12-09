@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "llm-log-operator.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "llm-log-operator.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "llm-log-operator.name" . }}
+    spec:
+      serviceAccountName: {{ include "llm-log-operator.serviceAccountName" . }}
+      containers:
+      - name: llm-log-operator
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: USE_LOCAL_LLM
+          value: "{{ .Values.env.USE_LOCAL_LLM }}"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openai-secret
+              key: api-key
+                env:
+        - name: USE_OLLAMA
+          value: "{{ .Values.useOllama | quote }}"
+        - name: OLLAMA_MODEL
+          value: "{{ .Values.ollamaModel }}"
+
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

@@ -1,0 +1,7 @@
+apiVersion: llm.analyzer.com/v1alpha1
+kind: AILogSummaryConfig
+metadata:
+  name: example-ailogsummaryconfig
+spec:
+  podName: ""
+

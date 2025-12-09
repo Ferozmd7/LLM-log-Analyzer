@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  repository: feroz29/llm-log-operator
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: ""
+
+rbac:
+  create: true
+
+resources: {}
+useOllama: true
+ollamaModel: "llama2"
+env:
+  USE_LOCAL_LLM: "0"
+  OPENAI_API_KEY: ""
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+

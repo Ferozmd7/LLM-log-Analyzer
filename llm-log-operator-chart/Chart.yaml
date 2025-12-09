@@ -1,0 +1,7 @@
+apiVersion: v2
+name: llm-log-operator
+description: A Helm chart for LLM Log Analyzer Operator
+type: application
+version: 0.1.0
+appVersion: "v1alpha1"
+
